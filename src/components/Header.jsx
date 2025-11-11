@@ -1,28 +1,39 @@
 import React from "react";
 import { FaMicrophone, FaUpload, FaBell, FaUserCircle, FaSun, FaMoon, FaBars } from "react-icons/fa";
 
-export default function Header({ darkMode, setDarkMode, sidebarOpen, setSidebarOpen, searchQuery, setSearchQuery }) {
+export default function Header({
+    darkMode,
+    setDarkMode,
+    sidebarCollapsed, // whether sidebar is collapsed
+    setSidebarCollapsed,
+    searchQuery,
+    setSearchQuery,
+}) {
     return (
         <header className="sticky top-0 z-50 shadow-md bg-white dark:bg-gray-900 transition-colors duration-300">
-            <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-2 gap-2 sm:gap-0">
-                {/* Left: Menu & Logo */}
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex items-center justify-between px-4 py-2 gap-3">
+
+                {/* Left: Hamburger & Logo */}
+                <div className="flex items-center gap-3">
                     <button
-                        className="md:hidden p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        title="Menu"
+                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => setSidebarCollapsed((prev) => !prev)}
+                        title="Toggle Sidebar"
                     >
-                        <FaBars size={24} />
+                        <FaBars size={20} />
                     </button>
                     <img
                         src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
                         alt="YouTube Logo"
-                        className="w-20 sm:w-24 cursor-pointer select-none"
+                        className="w-24 cursor-pointer select-none"
                     />
                 </div>
 
                 {/* Center: Search */}
-                <div className="flex-1 w-full sm:max-w-xl">
+                <div
+                    className={`flex-1 transition-all duration-300 ${sidebarCollapsed ? "ml-4 sm:ml-0 sm:max-w-full" : "sm:max-w-[calc(100%-16rem)]"
+                        }`}
+                >
                     <div className="flex w-full">
                         <input
                             type="text"
@@ -47,14 +58,23 @@ export default function Header({ darkMode, setDarkMode, sidebarOpen, setSidebarO
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
-                    <button className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Upload">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        title="Upload"
+                    >
                         <FaUpload size={20} />
                     </button>
-                    <button className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Notifications">
+                    <button
+                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        title="Notifications"
+                    >
                         <FaBell size={20} />
                     </button>
-                    <button className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" title="Profile">
+                    <button
+                        className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                        title="Profile"
+                    >
                         <FaUserCircle size={28} />
                     </button>
                     <button

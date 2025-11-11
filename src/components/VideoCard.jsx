@@ -1,5 +1,6 @@
-import React from "react";
-import { Heart, Clock, Share2 } from "lucide-react";
+import React, { useRef, useState, useMemo } from "react";
+import { Heart, Clock, Share2, Play } from "lucide-react";
+import { motion as Motion } from "framer-motion";
 
 export default function VideoCard({
   video,
@@ -8,11 +9,22 @@ export default function VideoCard({
   watchLater,
   setWatchLater,
 }) {
-  // Check if this video is already in favorites/watch later
-  const isFavorite = favorites.some((fav) => fav.id === video.id);
-  const isWatchLater = watchLater.some((vid) => vid.id === video.id);
+  const videoRef = useRef(null);
+  const [hovered, setHovered] = useState(false);
 
-  // Toggle favorite video object
+  // Generate a random view count for demo purposes
+  const viewCount = useMemo(() => {
+    const views = Math.floor(Math.random() * 900000) + 10000; // 10K - 910K
+    if (views >= 1000000) return (views / 1000000).toFixed(1) + "M views";
+    if (views >= 1000) return (views / 1000).toFixed(1) + "K views";
+    return views + " views";
+  }, []);
+
+  if (!video) return null;
+
+  const isFavorite = favorites?.some((fav) => fav.id === video.id);
+  const isWatchLater = watchLater?.some((vid) => vid.id === video.id);
+
   const toggleFavorite = () => {
     setFavorites((prev) =>
       prev.some((fav) => fav.id === video.id)
@@ -21,7 +33,6 @@ export default function VideoCard({
     );
   };
 
-  // Toggle watch later video object
   const toggleWatchLater = () => {
     setWatchLater((prev) =>
       prev.some((vid) => vid.id === video.id)
@@ -30,13 +41,54 @@ export default function VideoCard({
     );
   };
 
+  const handleMouseEnter = () => {
+    setHovered(true);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) playPromise.catch(() => { });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setHovered(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
-      <img
-        src={video.thumbnail}
-        alt={video.title}
-        className="w-full h-48 object-cover"
-      />
+      {/* Video preview */}
+      <div
+        className="relative w-full h-48 overflow-hidden group cursor-pointer"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <video
+          ref={videoRef}
+          src={video.url}
+          poster={video.thumbnail}
+          className="w-full h-full object-cover"
+          muted
+          preload="metadata"
+          loop
+          playsInline
+        />
+
+        {/* Hover overlay with play icon */}
+        <Motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: hovered ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 flex items-center justify-center bg-black/40"
+        >
+          <Play size={40} className="text-white drop-shadow-lg" />
+        </Motion.div>
+      </div>
+
+      {/* Video info */}
       <div className="flex flex-col p-2 gap-1">
         <div className="flex items-start gap-2">
           <img
@@ -49,7 +101,7 @@ export default function VideoCard({
               {video.title}
             </h3>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {video.channel}
+              {video.channel} • {viewCount}
             </p>
           </div>
         </div>
