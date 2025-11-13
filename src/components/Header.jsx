@@ -19,6 +19,7 @@ export default function Header({
     setCollapsed,
     searchQuery,
     setSearchQuery,
+    setActivePage, // <-- add this
 }) {
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
@@ -47,6 +48,7 @@ export default function Header({
                         src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
                         alt="YouTube Logo"
                         className="w-20 sm:w-24 cursor-pointer select-none"
+                        onClick={() => setActivePage("Home")} // <-- Go to main page
                     />
                 </div>
 

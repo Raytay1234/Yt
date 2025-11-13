@@ -63,7 +63,9 @@ export default function App() {
         setCollapsed={setCollapsed}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        setActivePage={setActivePage} // <-- pass this
       />
+
 
       {/* Filter bar (below header) */}
       <FilterBar
