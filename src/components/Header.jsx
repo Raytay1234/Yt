@@ -9,6 +9,8 @@ import {
     FaBars,
     FaSearch,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import clsx from "clsx";
 
 export default function Header({
     darkMode,
@@ -19,22 +21,36 @@ export default function Header({
     setCollapsed,
     searchQuery,
     setSearchQuery,
-    setActivePage, // <-- add this
+    user,
+    setUser, // <-- needed for logout
 }) {
+    const navigate = useNavigate();
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+    const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
     const handleHamburger = () => {
-        if (window.innerWidth < 768) {
-            setSidebarOpen(!sidebarOpen); // Mobile: overlay
+        if (window.innerWidth < 768) setSidebarOpen(!sidebarOpen);
+        else setCollapsed(!collapsed);
+    };
+
+    const handleProfileClick = () => {
+        if (!user) {
+            navigate("/login");
         } else {
-            setCollapsed(!collapsed); // Desktop: collapse
+            setProfileDropdownOpen(!profileDropdownOpen);
         }
+    };
+
+    const handleLogout = () => {
+        setUser(null);
+        localStorage.removeItem("user");
+        setProfileDropdownOpen(false);
+        navigate("/login");
     };
 
     return (
         <header className="sticky top-0 z-50 shadow-md bg-white dark:bg-gray-900 transition-colors duration-300">
             <div className="flex items-center justify-between px-2 sm:px-4 py-2 gap-2 sm:gap-3">
-
                 {/* Left: Hamburger & Logo */}
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     <button
@@ -48,33 +64,33 @@ export default function Header({
                         src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
                         alt="YouTube Logo"
                         className="w-20 sm:w-24 cursor-pointer select-none"
-                        onClick={() => setActivePage("Home")} // <-- Go to main page
+                        onClick={() => navigate("/")}
                     />
                 </div>
 
                 {/* Center: Search */}
                 <div className="flex-1 flex items-center justify-center relative">
-                    {/* Desktop / Tablet Search */}
                     <div
-                        className={`flex w-full max-w-md sm:max-w-lg transition-all duration-300 ${mobileSearchOpen ? "absolute left-2 right-2 z-40" : ""
-                            }`}
+                        className={clsx(
+                            "flex w-full max-w-md sm:max-w-lg transition-all duration-300",
+                            mobileSearchOpen ? "absolute left-2 right-2 z-40" : ""
+                        )}
                     >
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search"
-                            className={`flex-1 p-2 rounded-l border border-gray-300 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 transition-colors text-sm sm:text-base ${mobileSearchOpen ? "rounded-l" : "hidden sm:flex"
-                                }`}
+                            className={clsx(
+                                "flex-1 p-2 rounded-l border border-gray-300 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 transition-colors text-sm sm:text-base",
+                                mobileSearchOpen ? "rounded-l" : "hidden sm:flex"
+                            )}
                         />
-                        <button
-                            className={`p-2 bg-gray-200 dark:bg-gray-700 rounded-r hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors hidden sm:flex`}
-                        >
+                        <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-r hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors hidden sm:flex">
                             <FaSearch />
                         </button>
                     </div>
 
-                    {/* Mobile Search Icon */}
                     {!mobileSearchOpen && (
                         <button
                             className="sm:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -84,7 +100,6 @@ export default function Header({
                         </button>
                     )}
 
-                    {/* Mobile close button */}
                     {mobileSearchOpen && (
                         <button
                             className="sm:hidden absolute right-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors z-50"
@@ -96,8 +111,7 @@ export default function Header({
                 </div>
 
                 {/* Right: Actions */}
-                {/* Right: Actions */}
-                <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+                <div className="flex items-center gap-1 sm:gap-3 shrink-0 relative">
                     <button
                         className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         title="Upload"
@@ -110,13 +124,40 @@ export default function Header({
                     >
                         <FaBell size={20} />
                     </button>
-                    <button
-                        className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title="Profile"
-                        onClick={() => setActivePage("Profile")} // <-- Go to Profile page
-                    >
-                        <FaUserCircle size={28} />
-                    </button>
+
+                    {/* Profile */}
+                    <div className="relative">
+                        <button
+                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            title={user ? "Go to Profile / Logout" : "Login"}
+                            onClick={handleProfileClick}
+                        >
+                            <FaUserCircle size={28} />
+                        </button>
+
+                        {/* Dropdown */}
+                        {profileDropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 flex flex-col">
+                                <button
+                                    className="px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700"
+                                    onClick={() => {
+                                        navigate("/profile");
+                                        setProfileDropdownOpen(false);
+                                    }}
+                                >
+                                    Profile
+                                </button>
+                                <button
+                                    className="px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700"
+                                    onClick={handleLogout}
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Dark mode toggle */}
                     <button
                         onClick={() => setDarkMode(!darkMode)}
                         title={darkMode ? "Light Mode" : "Dark Mode"}
@@ -125,7 +166,6 @@ export default function Header({
                         {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
                     </button>
                 </div>
-
             </div>
         </header>
     );

@@ -8,14 +8,15 @@ import {
   FaClock,
   FaThumbsUp,
   FaBars,
+  FaUser,
 } from "react-icons/fa";
 import clsx from "clsx";
 
 export default function Sidebar({
   sidebarOpen,
   setSidebarOpen,
-  favorites,
-  watchLater,
+  favorites = [],
+  watchLater = [],
   activePage,
   setActivePage,
   collapsed,
@@ -39,6 +40,7 @@ export default function Sidebar({
       name: `Liked Videos${favorites.length ? ` (${favorites.length})` : ""}`,
       icon: <FaThumbsUp />,
     },
+    { name: "Profile", icon: <FaUser /> }, // Added Profile link
   ];
 
   const renderMenu = (menu) => (

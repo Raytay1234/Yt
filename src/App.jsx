@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import VideoGrid from "./components/VideoGrid";
@@ -7,122 +8,124 @@ import Favorites from "./Pages/Favorites";
 import Profile from "./Pages/Profile";
 import Footer from "./components/Footer";
 import FilterBar from "./components/FilterBar";
+import Login from "./Pages/Login";
+import Signup from "./Pages/Signup";
 
 export default function App() {
-  // 🌓 Dark mode
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") return true;
-    if (saved === "light") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
-
-  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile overlay sidebar
-  const [collapsed, setCollapsed] = useState(false); // tablet/desktop collapse
+  const [darkMode, setDarkMode] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState([]);
   const [watchLater, setWatchLater] = useState([]);
   const [activePage, setActivePage] = useState("Home");
   const [selectedFilter, setSelectedFilter] = useState("All");
-
-  // 🌓 Apply dark mode
-  useEffect(() => {
-    const html = document.documentElement;
-    if (darkMode) html.classList.add("dark");
-    else html.classList.remove("dark");
-    localStorage.setItem("theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
-
-  // 🧭 Auto adjust sidebar layout based on screen width
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setCollapsed(false);
-        setSidebarOpen(false);
-      } else if (window.innerWidth < 1024) {
-        setCollapsed(true);
-        setSidebarOpen(false);
-      } else {
-        setCollapsed(false);
-        setSidebarOpen(false);
-      }
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
 
   return (
-    <div className="bg-white dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100 w-full transition-colors duration-300 flex flex-col">
-      {/* Header */}
-      <Header
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        collapsed={collapsed}
-        setCollapsed={setCollapsed}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        setActivePage={setActivePage} // Pass this so profile icon works
-      />
-
-      {/* Filter bar */}
-      {activePage === "Home" && (
-        <FilterBar
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
-        />
-      )}
-
-      <div className="flex flex-1 w-full pt-16 sm:pt-0">
-        {/* Sidebar */}
-        <Sidebar
+    <Router>
+      <div className="bg-white dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100 w-full transition-colors duration-300 flex flex-col">
+        {/* Header always visible */}
+        <Header
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
-          favorites={favorites}
-          watchLater={watchLater}
-          activePage={activePage}
-          setActivePage={setActivePage}
           collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          user={user}
         />
 
-        {/* Main Content */}
-        <main
-          className={`flex-1 p-2 sm:p-4 w-full overflow-auto transition-all duration-300 ${collapsed ? "md:ml-20" : "md:ml-64"
-            }`}
-        >
-          {activePage === "Watch Later" ? (
-            <WatchLater
-              watchLater={watchLater}
-              favorites={favorites}
-              setFavorites={setFavorites}
-              setWatchLater={setWatchLater}
-            />
-          ) : activePage === "Liked Videos" ? (
-            <Favorites
-              favorites={favorites}
-              watchLater={watchLater}
-              setFavorites={setFavorites}
-              setWatchLater={setWatchLater}
-            />
-          ) : activePage === "Profile" ? (
-            <Profile />
-          ) : (
-            <VideoGrid
-              searchQuery={searchQuery}
-              favorites={favorites}
-              setFavorites={setFavorites}
-              watchLater={watchLater}
-              setWatchLater={setWatchLater}
-              selectedFilter={selectedFilter}
-            />
-          )}
-        </main>
-      </div>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={user ? <Navigate to="/profile" /> : <Login setUser={setUser} />} />
+          <Route path="/signup" element={user ? <Navigate to="/profile" /> : <Signup setUser={setUser} />} />
 
-      {/* Footer */}
-      <Footer />
-    </div>
+          {/* Protected routes */}
+          <Route
+            path="/profile"
+            element={
+              user ? (
+                <Profile
+                  user={user}
+                  setUser={setUser}   // <-- important
+                  favorites={favorites}
+                  watchLater={watchLater}
+                />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+
+
+          <Route
+            path="/"
+            element={
+              user ? (
+                <>
+                  <FilterBar selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter} />
+                  <div className="flex flex-1 w-full pt-16 sm:pt-0">
+                    <Sidebar
+                      sidebarOpen={sidebarOpen}
+                      setSidebarOpen={setSidebarOpen}
+                      favorites={favorites}
+                      watchLater={watchLater}
+                      activePage={activePage}
+                      setActivePage={setActivePage}
+                      collapsed={collapsed}
+                    />
+
+                    <main
+                      className={`flex-1 p-2 sm:p-4 w-full overflow-auto transition-all duration-300 ${collapsed ? "md:ml-20" : "md:ml-64"
+                        }`}
+                    >
+                      {activePage === "Watch Later" ? (
+                        <WatchLater
+                          watchLater={watchLater}
+                          favorites={favorites}
+                          setFavorites={setFavorites}
+                          setWatchLater={setWatchLater}
+                        />
+                      ) : activePage === "Liked Videos" ? (
+                        <Favorites
+                          favorites={favorites}
+                          watchLater={watchLater}
+                          setFavorites={setFavorites}
+                          setWatchLater={setWatchLater}
+                        />
+                      ) : activePage === "Profile" && (
+                        <Profile
+                          user={user}
+                          setUser={setUser}     // <-- pass it here too
+                          favorites={favorites}
+                          watchLater={watchLater}
+                        />
+                      )}
+                      <VideoGrid
+                        searchQuery={searchQuery}
+                        favorites={favorites}
+                        setFavorites={setFavorites}
+                        watchLater={watchLater}
+                        setWatchLater={setWatchLater}
+                        selectedFilter={selectedFilter}
+                      />
+                    </main>
+                  </div>
+                  <Footer />
+                </>
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
