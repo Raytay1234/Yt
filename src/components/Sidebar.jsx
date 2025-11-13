@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   FaHome,
   FaFire,
@@ -7,7 +7,6 @@ import {
   FaHistory,
   FaClock,
   FaThumbsUp,
-  FaTimes,
   FaBars,
 } from "react-icons/fa";
 import clsx from "clsx";
@@ -19,9 +18,9 @@ export default function Sidebar({
   watchLater,
   activePage,
   setActivePage,
+  collapsed,
+  setCollapsed,
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-
   const mainMenu = [
     { name: "Home", icon: <FaHome /> },
     { name: "Trending", icon: <FaFire /> },
@@ -49,7 +48,10 @@ export default function Sidebar({
         return (
           <li
             key={item.name}
-            onClick={() => setActivePage(menuName)}
+            onClick={() => {
+              setActivePage(menuName);
+              setSidebarOpen(false); // closes sidebar on mobile
+            }}
             className={clsx(
               "relative flex items-center gap-3 p-2 rounded-r-full cursor-pointer transition-all whitespace-nowrap overflow-hidden group",
               activePage === menuName
@@ -58,10 +60,7 @@ export default function Sidebar({
               collapsed ? "justify-center" : "justify-start"
             )}
           >
-            {/* Icon */}
             <span className="text-lg shrink-0">{item.icon}</span>
-
-            {/* Label */}
             <span
               className={clsx(
                 "flex-1 truncate transition-all duration-300",
@@ -71,7 +70,6 @@ export default function Sidebar({
               {item.name}
             </span>
 
-            {/* Tooltip for collapsed */}
             {collapsed && (
               <span className="absolute left-full ml-2 px-2 py-1 rounded bg-gray-800 text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-50">
                 {item.name}
@@ -85,19 +83,13 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Hamburger for mobile */}
-      <button
-        className="fixed top-4 left-4 z-50 md:hidden p-2 rounded-full bg-white dark:bg-gray-900 shadow-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-        onClick={() => setSidebarOpen(true)}
-      >
-        <FaBars size={20} />
-      </button>
-
-      {/* Overlay for mobile */}
+      {/* Mobile Overlay */}
       <div
         className={clsx(
           "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity",
-          sidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          sidebarOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         )}
         onClick={() => setSidebarOpen(false)}
       />
@@ -105,29 +97,20 @@ export default function Sidebar({
       {/* Sidebar */}
       <aside
         className={clsx(
-          "fixed md:sticky top-16 left-0 h-[calc(100vh-4rem)] bg-white dark:bg-gray-900 z-50 md:z-20 transform transition-all duration-300 flex flex-col justify-between overflow-y-auto shadow-lg md:shadow-none",
+          "fixed md:sticky top-0 md:top-16 left-0 h-full md:h-[calc(100vh-4rem)] bg-white dark:bg-gray-900 z-50 md:z-20 transform transition-all duration-300 flex flex-col justify-between overflow-y-auto shadow-lg md:shadow-none",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
           "md:translate-x-0",
-          collapsed ? "w-16" : "w-64"
+          collapsed ? "w-20" : "w-64"
         )}
       >
-        {/* Collapse toggle (desktop only) */}
+        {/* Collapse toggle (desktop/tablet) */}
         <div className="hidden md:flex justify-end p-2">
           <button
-            className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-            onClick={() => setCollapsed((prev) => !prev)}
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
           >
-            {collapsed ? "➡️" : "⬅️"}
+            <FaBars />
           </button>
-        </div>
-
-        {/* Logo */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-300 dark:border-gray-700">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
-            alt="YouTube Logo"
-            className={clsx("transition-all", collapsed ? "w-10" : "w-20 sm:w-24")}
-          />
         </div>
 
         {/* Menu */}
