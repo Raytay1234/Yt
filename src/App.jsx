@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import VideoGrid from "./components/VideoGrid";
 import WatchLater from "./Pages/WatchLater";
 import Favorites from "./Pages/Favorites";
+import Profile from "./Pages/Profile";
 import Footer from "./components/Footer";
 import FilterBar from "./components/FilterBar";
 
@@ -63,15 +64,16 @@ export default function App() {
         setCollapsed={setCollapsed}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        setActivePage={setActivePage} // <-- pass this
+        setActivePage={setActivePage} // Pass this so profile icon works
       />
 
-
-      {/* Filter bar (below header) */}
-      <FilterBar
-        selectedFilter={selectedFilter}
-        setSelectedFilter={setSelectedFilter}
-      />
+      {/* Filter bar */}
+      {activePage === "Home" && (
+        <FilterBar
+          selectedFilter={selectedFilter}
+          setSelectedFilter={setSelectedFilter}
+        />
+      )}
 
       <div className="flex flex-1 w-full pt-16 sm:pt-0">
         {/* Sidebar */}
@@ -104,6 +106,8 @@ export default function App() {
               setFavorites={setFavorites}
               setWatchLater={setWatchLater}
             />
+          ) : activePage === "Profile" ? (
+            <Profile />
           ) : (
             <VideoGrid
               searchQuery={searchQuery}

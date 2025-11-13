@@ -96,6 +96,7 @@ export default function Header({
                 </div>
 
                 {/* Right: Actions */}
+                {/* Right: Actions */}
                 <div className="flex items-center gap-1 sm:gap-3 shrink-0">
                     <button
                         className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -112,6 +113,7 @@ export default function Header({
                     <button
                         className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         title="Profile"
+                        onClick={() => setActivePage("Profile")} // <-- Go to Profile page
                     >
                         <FaUserCircle size={28} />
                     </button>
@@ -123,6 +125,7 @@ export default function Header({
                         {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
                     </button>
                 </div>
+
             </div>
         </header>
     );
