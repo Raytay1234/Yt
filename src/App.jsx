@@ -8,8 +8,10 @@ import Favorites from "./Pages/Favorites";
 import Profile from "./Pages/Profile";
 import Footer from "./components/Footer";
 import FilterBar from "./components/FilterBar";
+import Library from "./Pages/Library";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
+import Settings from "./Pages/Settings";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -62,7 +64,24 @@ export default function App() {
               )
             }
           />
-
+          <Route path="/user-profile" element={<Profile user={user} setUser={setUser} />} />
+          <Route path="/settings" element={<Settings user={user} setUser={setUser} />} />
+          <Route
+            path="/library"
+            element={
+              user ? (
+                <Library
+                  favorites={favorites}
+                  watchLater={watchLater}
+                  history={[]}   // optional for now
+                  setFavorites={setFavorites}
+                  setWatchLater={setWatchLater}
+                />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
 
           <Route
             path="/"

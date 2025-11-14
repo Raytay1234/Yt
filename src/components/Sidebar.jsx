@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   FaHome,
   FaFire,
@@ -7,10 +7,12 @@ import {
   FaHistory,
   FaClock,
   FaThumbsUp,
-  FaBars,
   FaUser,
+  FaCog,
+  FaBars,
 } from "react-icons/fa";
 import clsx from "clsx";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Sidebar({
   sidebarOpen,
@@ -22,6 +24,14 @@ export default function Sidebar({
   collapsed,
   setCollapsed,
 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === "/user-profile") setActivePage("Profile");
+    else if (location.pathname === "/settings") setActivePage("Settings");
+  }, [location.pathname, setActivePage]);
+
   const mainMenu = [
     { name: "Home", icon: <FaHome /> },
     { name: "Trending", icon: <FaFire /> },
@@ -40,7 +50,8 @@ export default function Sidebar({
       name: `Liked Videos${favorites.length ? ` (${favorites.length})` : ""}`,
       icon: <FaThumbsUp />,
     },
-    { name: "Profile", icon: <FaUser /> }, // Added Profile link
+    { name: "Profile", icon: <FaUser /> },
+    { name: "Settings", icon: <FaCog /> },
   ];
 
   const renderMenu = (menu) => (
@@ -51,8 +62,10 @@ export default function Sidebar({
           <li
             key={item.name}
             onClick={() => {
-              setActivePage(menuName);
-              setSidebarOpen(false); // closes sidebar on mobile
+              if (menuName === "Profile") navigate("/user-profile");
+              else if (menuName === "Settings") navigate("/settings");
+              else setActivePage(menuName);
+              setSidebarOpen(false);
             }}
             className={clsx(
               "relative flex items-center gap-3 p-2 rounded-r-full cursor-pointer transition-all whitespace-nowrap overflow-hidden group",
@@ -85,7 +98,6 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobile Overlay */}
       <div
         className={clsx(
           "fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity",
@@ -96,7 +108,6 @@ export default function Sidebar({
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar */}
       <aside
         className={clsx(
           "fixed md:sticky top-0 md:top-16 left-0 h-full md:h-[calc(100vh-4rem)] bg-white dark:bg-gray-900 z-50 md:z-20 transform transition-all duration-300 flex flex-col justify-between overflow-y-auto shadow-lg md:shadow-none",
@@ -105,7 +116,6 @@ export default function Sidebar({
           collapsed ? "w-20" : "w-64"
         )}
       >
-        {/* Collapse toggle (desktop/tablet) */}
         <div className="hidden md:flex justify-end p-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -115,7 +125,6 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* Menu */}
         <div className="flex-1 px-2 mt-4">
           <div className="mb-4">{renderMenu(mainMenu)}</div>
           <hr className="my-3 border-gray-300 dark:border-gray-700" />

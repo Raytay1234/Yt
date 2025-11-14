@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-    FaMicrophone,
     FaUpload,
     FaBell,
     FaUserCircle,
@@ -22,7 +21,7 @@ export default function Header({
     searchQuery,
     setSearchQuery,
     user,
-    setUser, // <-- needed for logout
+    setUser,
 }) {
     const navigate = useNavigate();
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -34,11 +33,8 @@ export default function Header({
     };
 
     const handleProfileClick = () => {
-        if (!user) {
-            navigate("/login");
-        } else {
-            setProfileDropdownOpen(!profileDropdownOpen);
-        }
+        if (!user) navigate("/login");
+        else setProfileDropdownOpen(!profileDropdownOpen);
     };
 
     const handleLogout = () => {
@@ -51,21 +47,28 @@ export default function Header({
     return (
         <header className="sticky top-0 z-50 shadow-md bg-white dark:bg-gray-900 transition-colors duration-300">
             <div className="flex items-center justify-between px-2 sm:px-4 py-2 gap-2 sm:gap-3">
+
                 {/* Left: Hamburger & Logo */}
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                     <button
-                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         onClick={handleHamburger}
+                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         title="Toggle Sidebar"
                     >
                         <FaBars size={20} />
                     </button>
-                    <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
-                        alt="YouTube Logo"
-                        className="w-20 sm:w-24 cursor-pointer select-none"
+
+                    {/* Logo Button */}
+                    <button
                         onClick={() => navigate("/")}
-                    />
+                        className="w-20 sm:w-24 cursor-pointer select-none p-0"
+                    >
+                        <img
+                            src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
+                            alt="Logo"
+                            className="w-full h-full"
+                        />
+                    </button>
                 </div>
 
                 {/* Center: Search */}
@@ -73,7 +76,7 @@ export default function Header({
                     <div
                         className={clsx(
                             "flex w-full max-w-md sm:max-w-lg transition-all duration-300",
-                            mobileSearchOpen ? "absolute left-2 right-2 z-40" : ""
+                            mobileSearchOpen && "absolute left-2 right-2 z-40"
                         )}
                     >
                         <input
@@ -82,19 +85,19 @@ export default function Header({
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search"
                             className={clsx(
-                                "flex-1 p-2 rounded-l border border-gray-300 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 transition-colors text-sm sm:text-base",
-                                mobileSearchOpen ? "rounded-l" : "hidden sm:flex"
+                                "flex-1 p-2 rounded-l border border-gray-300 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100",
+                                mobileSearchOpen ? "" : "hidden sm:flex"
                             )}
                         />
-                        <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-r hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors hidden sm:flex">
+                        <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-r hover:bg-gray-300 dark:hover:bg-gray-600 hidden sm:flex">
                             <FaSearch />
                         </button>
                     </div>
 
                     {!mobileSearchOpen && (
                         <button
-                            className="sm:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                             onClick={() => setMobileSearchOpen(true)}
+                            className="sm:hidden p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
                         >
                             <FaSearch />
                         </button>
@@ -102,7 +105,7 @@ export default function Header({
 
                     {mobileSearchOpen && (
                         <button
-                            className="sm:hidden absolute right-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors z-50"
+                            className="sm:hidden absolute right-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 z-50"
                             onClick={() => setMobileSearchOpen(false)}
                         >
                             ✖
@@ -110,46 +113,57 @@ export default function Header({
                     )}
                 </div>
 
-                {/* Right: Actions */}
+                {/* Right: Upload, Notifications, Profile, DarkMode */}
                 <div className="flex items-center gap-1 sm:gap-3 shrink-0 relative">
-                    <button
-                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title="Upload"
-                    >
+                    <button className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                         <FaUpload size={20} />
                     </button>
-                    <button
-                        className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                        title="Notifications"
-                    >
+                    <button className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                         <FaBell size={20} />
                     </button>
 
-                    {/* Profile */}
+                    {/* Profile Dropdown */}
                     <div className="relative">
                         <button
-                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                            title={user ? "Go to Profile / Logout" : "Login"}
                             onClick={handleProfileClick}
+                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors overflow-hidden w-9 h-9"
                         >
-                            <FaUserCircle size={28} />
+                            {user?.avatar ? (
+                                <img
+                                    src={user.avatar}
+                                    alt="User Avatar"
+                                    className="w-full h-full rounded-full object-cover"
+                                />
+                            ) : (
+                                <FaUserCircle size={28} className="text-gray-600 dark:text-gray-300" />
+                            )}
                         </button>
 
-                        {/* Dropdown */}
                         {profileDropdownOpen && (
                             <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 flex flex-col">
                                 <button
-                                    className="px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700"
                                     onClick={() => {
-                                        navigate("/profile");
+                                        navigate("/user-profile");
                                         setProfileDropdownOpen(false);
                                     }}
+                                    className="px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700"
                                 >
                                     Profile
                                 </button>
+
                                 <button
+                                    onClick={() => {
+                                        navigate("/settings");
+                                        setProfileDropdownOpen(false);
+                                    }}
                                     className="px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700"
+                                >
+                                    Settings
+                                </button>
+
+                                <button
                                     onClick={handleLogout}
+                                    className="px-4 py-2 text-left hover:bg-gray-200 dark:hover:bg-gray-700"
                                 >
                                     Logout
                                 </button>
@@ -157,10 +171,9 @@ export default function Header({
                         )}
                     </div>
 
-                    {/* Dark mode toggle */}
+                    {/* Dark Mode Toggle */}
                     <button
                         onClick={() => setDarkMode(!darkMode)}
-                        title={darkMode ? "Light Mode" : "Dark Mode"}
                         className="p-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                     >
                         {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
